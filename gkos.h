@@ -23,6 +23,14 @@ typedef enum GKOS_MODE_t {
     GKOS_POINT = 7  // Pointer mode
 } GKOS_MODE;
 
+
+typedef struct GKOS_STATE_t {
+    GKOS_MODE mode     = GKOS_ABC;
+    char      mod      = 0;
+    char      key      = 0;
+    char      key_last = 0;
+    char      key_acc  = 0;
+} GKOS_STATE;
 // Max keycode value with 6 bits
 #define GKOS_MAX_KEY 0x3f
 
@@ -125,7 +133,14 @@ const uint16_t GKOS_KEY[GKOS_MAX_KEY][10] = {
     /* 61 */ { KEY_TAB,   KEY_TAB,   KEY_TAB,   KEY_TAB,   KEY_TAB,   KEY_TAB,   KEY_TAB },
     /* 62 */ { KEY_DELETE,KEY_DELETE,KEY_DELETE,KEY_DELETE,KEY_DELETE,KEY_DELETE,KEY_DELETE },
     /* 63 */ {0,0,0,0,0,0,0}         // 123-ABC
-};      
+};
+
+// TODO: add pointer mode table
+
+
+bool gkos_should_toggle_shift(char mode, char keycode);
+bool gkos_is_ctrled(char mode, char keycode);
+GKOS_STATE gkos_init();
 #endif /* GKOS_H */
         
         
