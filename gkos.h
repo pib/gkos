@@ -94,7 +94,7 @@ const uint16_t GKOS_KEY[GKOS_MAX_KEY][10] = {
     /* 30 */ { KEY_SLASH, K_APOS,    KEY_SLASH, KEY_SLASH, K_APOS,    KEY_SLASH,  KEY_SLASH },
     /* 31 */ { KEY_ESC,   KEY_ESC,   KEY_ESC,   KEY_ESC,   KEY_ESC,   KEY_ESC,    KEY_ESC },
     /* 32 */ { KEY_F,     KEY_6,     KEY_F,     KEY_6,     KEY_F,     KEY_6,      KEY_F6 },
-    /* 33 */ { KEY_SLASH, KEY_GRAVE, KEY_SLASH, KEY_SLASH, KEY_GRAVE, KEY_SLASH,  KEY_SLASH }, // ? (shift /) <¿>
+    /* 33 */ { KEY_SLASH, KEY_GRAVE, KEY_SLASH, KEY_SLASH, KEY_GRAVE, KEY_SLASH,  KEY_SLASH },//? <¿>
     /* 34 */ { KEY_DOT,   KEY_COLON, KEY_DOT,   KEY_DOT,   KEY_COLON, KEY_DOT,    KEY_DOT },
     /* 35 */ { KEY_R,     KEY_6,     KEY_R,     KEY_6,     KEY_R,     KEY_YEN,    KEY_F16 },
     /* 36 */ { KEY_DOWN,  KEY_DOWN,  KEY_DOWN,  KEY_DOWN,  KEY_DOWN,  KEY_DOWN,   KEY_DOWN },
