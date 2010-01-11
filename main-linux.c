@@ -8,6 +8,9 @@
 
 #include "gkos.h"
 
+// uinput device (see gkos.c for my explanation of why a global var)
+static int uinput_fd;
+
 bool match_serial_number(struct usb_dev_handle* usbdev, void* custom, unsigned int len)
 {
     bool ret;
@@ -19,7 +22,7 @@ bool match_serial_number(struct usb_dev_handle* usbdev, void* custom, unsigned i
     return ret;
 }
 
-char keys_to_keycode(char *keys, int keylength) {
+char keys_to_keymap(char *keys, int keylength) {
     // TODO: make this configurable, rather than being hardcoded to my keypad
     char keycode = 0;
     int i;
@@ -50,21 +53,11 @@ char keys_to_keycode(char *keys, int keylength) {
     return keycode;
 }
 
-bool send_keycode(int uinput_fd, char mode, char keycode) {
-    int res;
-    uint16_t key = GKOS_KEY[(int)keycode];
-    bool shifted = is_shifted(mode, keycode);
-    bool ctrled =  is_ctrled(mode, keycode);
-
-    if (shifted) suinput_press(uinput_fd, KEY_LEFTSHIFT);
-    if (ctrled)  suinput_press(uinput_fd, KEY_LEFTCTRL);
-
-    res = suinput_click(uinput_fd, key);
-
-    if (shifted) suinput_release(uinput_fd, KEY_LEFTSHIFT);
-    if (ctrled)  suinput_release(uinput_fd, KEY_LEFTCTRL);
-
-    return res;
+bool gkos_send_keydown(uint16_t keycode) {
+    return suinput_press(uinput_fd, keycode);
+}
+bool gkos_send_keyup(uint16_t keycode) {
+    return suinput_release(uinput_fd, keycode);
 }
 
 
@@ -161,12 +154,9 @@ int main(int argc, char *argv[])
     const int SLEEP_LENGTH = 10000; // 10 milliseconds
 
     char *packet = malloc(RECV_PACKET_LEN);
-    char keycode;
-    char last_keycode = 0;
-    char keycode_accumulator = 0;
-    GKOS_MODE mode = GKOS_ABC;
+    char keymap;
 
-    int uinput_fd = suinput_open("GKOSInput", &in_id);
+    uinput_fd = suinput_open("GKOSInput", &in_id);
 
     if (!packet) {
         perror("Couldn't allocate input buffer.");
@@ -176,11 +166,16 @@ int main(int argc, char *argv[])
         perror("Couldn't create virtual input device.");
         done = true;
     }
+    if (!gkos_init()) {
+        perror("Couldn't initialize gkos.");
+        done = true;
+    }
+
     while (!done) {
         usleep(SLEEP_LENGTH);
         ret = hid_get_input_report(hid, PATH_IN, PATHLEN, packet, RECV_PACKET_LEN);
         if (ret != HID_RET_SUCCESS) {
-            fprintf(stderr, "hid_close failed with return code %d\n", ret);
+            fprintf(stderr, "hid_get_input_report failed with return code %d\n", ret);
             return 1;
         }
         /*
@@ -188,17 +183,10 @@ int main(int argc, char *argv[])
           devices work like mine check the HID standard for how
           keyboards send their input
         */
-        keycode = keys_to_keycode(packet, RECV_PACKET_LEN);
-        keycode_accumulator |= keycode;
-        if (keycode && (keycode != last_keycode)) {
-            printf("keycode: %02x (%d)\n", keycode, keycode);
+        keymap = keys_to_keymap(packet, RECV_PACKET_LEN);
+        if (!gkos_handle_keys(keymap)) {
+            done = true;
         }
-        if (!keycode && last_keycode) {
-            // All the keys were released
-            send_keycode(uinput_fd, mode, keycode_accumulator);
-            keycode_accumulator = 0;
-        }
-        last_keycode = keycode;
     }
     if (packet) free(packet);
     if (uinput_fd) suinput_close(uinput_fd);
