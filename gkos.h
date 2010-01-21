@@ -23,8 +23,8 @@ bool gkos_handle_keys(char keymap);
  */ 
 bool gkos_send_keydown(uint16_t keycode);
 bool gkos_send_keyup(uint16_t keycode);
-bool gkos_send_mouse();
-
+bool gkos_move_mouse();
+//int suinput_move_pointer(int uinput_fd, int32_t x, int32_t y);
 #endif /* GKOS_H */
         
         

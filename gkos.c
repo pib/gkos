@@ -108,6 +108,7 @@ bool gkos_special(char keymap) {
         return true;
     case GKOS_KEY_ALT:
         state.mod ^= GKOS_ALT; // toggle GKOS_ALT bit
+        return true;
     default:
         return false;
     }
